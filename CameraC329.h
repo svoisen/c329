@@ -8,6 +8,9 @@
 // The byte size of UART commands
 #define CMD_SIZE 8
 
+// Number of sync attempts to try before giving up
+#define MAX_SYNC_ATTEMPTS 60
+
 class CameraC329R
 {
   public:
@@ -15,9 +18,9 @@ class CameraC329R
     bool sync();
 
   private:
-    byte outCommand[CMD_SIZE];
-    byte inCommand[CMD_SIZE];
-    void createCommand(const byte, byte, byte, byte, byte);
+    byte outputCommand[CMD_SIZE];
+    byte inputCommand[CMD_SIZE];
+    void setOutputCommand(const byte, byte, byte, byte, byte);
 }
 
 #endif // CAMERAC329_H_
