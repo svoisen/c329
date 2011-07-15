@@ -91,6 +91,31 @@ bool CameraC329::sync()
   return false;
 }
 
+/**
+ * Resets the camera.
+ *
+ * @param resetType The type of reset to perform (ether a "soft" reset which
+ * resets only the camera's internal state machine) or a "hard" reset.
+ *
+ * @return True if successful, false otherwise.
+ */
+bool CameraC329::reset(ResetType resetType)
+{
+  setOutputCommand(CMD_RESET, resetType, 0, 0, 0xFF);
+  sendCommand();
+
+  if (waitForACK(RESPONSE_DELAY, CMD_RESET))
+    return true;
+
+  return false;
+}
+
+/**
+ * @private
+ *
+ * Sends the command that is in the outputCommand buffer. Command bytes are
+ * sent in big endian order.
+ */
 void CameraC329::sendCommand()
 {
   uint8_t i;
@@ -140,6 +165,11 @@ bool CameraC329::waitForResponse(uint32_t timeout, byte buffer[], uint16_t buffe
   return false;
 }
 
+/**
+ * @private
+ *
+ * Utility method for populating the output command buffer.
+ */
 void CameraC329::setOutputCommand(const byte command, byte param1, byte param2, byte param3, byte param4)
 {
   outputCommand[0] = CMD_PREFIX;
