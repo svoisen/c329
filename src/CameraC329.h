@@ -11,16 +11,23 @@
 // Number of sync attempts to try before giving up
 #define MAX_SYNC_ATTEMPTS 60
 
-class CameraC329R
+// How long to wait for serial communication responses
+#define RESPONSE_DELAY 100
+
+class CameraC329
 {
   public:
-    CameraC329R();
+    CameraC329();
     bool sync();
 
   private:
     byte outputCommand[CMD_SIZE];
     byte inputCommand[CMD_SIZE];
+    void sendCommand();
+    bool waitForACK(uint32_t, uint8_t);
+    bool waitForResponse(uint32_t);
+    bool waitForResponse(uint32_t, byte[], uint16_t);
     void setOutputCommand(const byte, byte, byte, byte, byte);
-}
+};
 
 #endif // CAMERAC329_H_
