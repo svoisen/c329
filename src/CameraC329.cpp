@@ -103,7 +103,7 @@ bool CameraC329::sync()
  *
  * @return True if successful, false otherwise
  */
-bool CameraC329::initial(BaudRate baudRate, ColorType colorType, 
+bool CameraC329::initialize(BaudRate baudRate, ColorType colorType, 
     PreviewResolution previewResolution, JPEGResolution jpegResolution)
 {
   setOutputCommand(CMD_INITIAL, baudRate, colorType, previewResolution,
