@@ -92,6 +92,31 @@ bool CameraC329::sync()
 }
 
 /**
+ * Sets the camera's initial baud rate, color type, and image sizes. Call this
+ * method after synchronization to set up appropriate parameters before
+ * taking a snapshot.
+ *
+ * @param baudRate The baud rate to use for future camera communication
+ * @param colorType The color type
+ * @param previewResolution The preview resolution
+ * @param jpegResolution The JPEG resolution
+ *
+ * @return True if successful, false otherwise
+ */
+bool CameraC329::initial(BaudRate baudRate, ColorType colorType, 
+    PreviewResolution previewResolution, JPEGResolution jpegResolution)
+{
+  setOutputCommand(CMD_INITIAL, baudRate, colorType, previewResolution,
+    jpegResolution);
+  sendCommand();
+
+  if (waitForACK(RESPONSE_DELAY, CMD_INITIAL))
+    return true;
+
+  return false;
+}
+
+/**
  * Resets the camera.
  *
  * @param resetType The type of reset to perform (ether a "soft" reset which
@@ -137,11 +162,31 @@ bool CameraC329::waitForACK(uint32_t timeout, uint8_t cmd)
   return false;
 }
 
+/**
+ * @private
+ *
+ * Waits for a response up to timeout, and stores the response in the
+ * inputCommand array.
+ *
+ * @return True if response is received before the timeout, false otherwise.
+ */
 bool CameraC329::waitForResponse(uint32_t timeout)
 {
   return waitForResponse(timeout, inputCommand, CMD_SIZE);
 }
 
+/**
+ * @private
+ *
+ * Waits for a response up to timeout, and stores the response in the buffer
+ * array provided.
+ *
+ * @param timeout The timeout
+ * @param buffer The buffer within which to store the response
+ * @param bufferLength The length of the provided buffer
+ *
+ * @return True if response is received before timeout, false otherwise
+ */
 bool CameraC329::waitForResponse(uint32_t timeout, byte buffer[], uint16_t bufferLength)
 {
   uint8_t byteCount = 0;

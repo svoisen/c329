@@ -103,6 +103,7 @@ class CameraC329
 
     CameraC329();
     bool sync();
+    bool initial(BaudRate, ColorType, PreviewResolution, JPEGResolution);
     bool reset(ResetType);
 
   private:
