@@ -36,23 +36,28 @@ void setup()
   
   delay(2000);
 
-  if (camera.sync())
+  if (!camera.sync())
   {
-    if (camera.initialize(CameraC329::BAUD14400, CameraC329::CT_JPEG, CameraC329::PR_160x120, CameraC329::JR_320x240))
-    {
-      if (!camera.getPicture(CameraC329::PT_JPEG_PREVIEW, &getPicture_callback))
-      {
-        Serial.println("Get Picture Failed");
-      }
-    }
-    else
-    {
-      Serial.println("Initialize Failed");
-    }
+    Serial.println("Sync failed");
+    return;
   }
-  else
+
+  if (!camera.initialize(CameraC329::BAUD14400, CameraC329::CT_JPEG, CameraC329::PR_160x120, CameraC329::JR_320x240))
   {
-    Serial.println("Sync Failed");
+    Serial.println("Initialize failed");
+    return;
+  }
+  
+  if (!camera.setQuality(CameraC329::QL_BEST))
+  {
+    Serial.println("Set quality failed");
+    return;
+  }
+      
+  if (!camera.getPicture(CameraC329::PT_JPEG_PREVIEW, &getPicture_callback))
+  {
+    Serial.println("Get Picture Failed");
+    return;
   }
 }
 
