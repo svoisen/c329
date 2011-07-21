@@ -117,6 +117,66 @@ bool CameraC329::initialize(BaudRate baudRate, ColorType colorType,
 }
 
 /**
+ * Set the quality level for compressed (JPEG) images.
+ *
+ * @param qualityLevel The desired quality level. Should be a value from the
+ * QualityLevel enumeration.
+ */
+bool CameraC329::setQuality(QualityLevel qualityLevel)
+{
+  setOutputCommand(CMD_QUALITY, qualityLevel, 0, 0, 0);
+  sendCommand();
+
+  if (waitForACK(RESPONSE_DELAY, CMD_QUALITY))
+    return true;
+
+  return false;
+}
+
+/**
+ * Takes a snapshot with the camera and stores it in the camera's internal
+ * data buffer. Once a snapshot has been taken, use getPicture to retrieve
+ * the photo data.
+ *
+ * @param pictureType The picture type to take. Should be a value from the
+ * PictureType enumeration.
+ *
+ * @return True if successful, false otherwise
+ */
+bool CameraC329::takeSnapshot(PictureType pictureType)
+{
+  setOutputCommand(CMD_SNAPSHOT, pictureType, 0, 0, 0);
+  sendCommand();
+
+  if (waitForACK(RESPONSE_DELAY, CMD_SNAPSHOT))
+    return true;
+
+  return false;
+}
+
+bool CameraC329::getPicture(PictureType pictureType, uint32_t &pictureSize)
+{
+  pictureSize = 0;
+
+  setOutputCommand(CMD_GETPICTURE, pictureType, 0, 0, 0);
+  sendCommand();
+
+  if (!waitForACK(RESPONSE_DELAY, CMD_GETPICTURE))
+    return false;
+
+  if (waitForResponse(RESPONSE_DELAY) && inputCommand[3] == CMD_DATA)
+  {
+    pictureSize = inputCommand[7] << 8;
+    pictureSize |= inputCommand[6] << 8;
+    pictureSize |= inputCommand[5];
+
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Resets the camera.
  *
  * @param resetType The type of reset to perform (ether a "soft" reset which
@@ -130,6 +190,23 @@ bool CameraC329::reset(ResetType resetType)
   sendCommand();
 
   if (waitForACK(RESPONSE_DELAY, CMD_RESET))
+    return true;
+
+  return false;
+}
+
+/**
+ * Power off the camera. The camera will be unusable after calling this method
+ * until a successful re-synchronization.
+ *
+ * @return True if successful, false otherwise
+ */
+bool CameraC329::powerOff()
+{
+  setOutputCommand(CMD_POWEROFF, 0, 0, 0, 0);
+  sendCommand();
+
+  if (waitForACK(RESPONSE_DELAY, CMD_POWEROFF))
     return true;
 
   return false;

@@ -14,6 +14,9 @@
 // How long to wait for serial communication responses
 #define RESPONSE_DELAY 100
 
+// Size (in bytes) to split up picture data into packages for processing
+#define DEFAULT_PACKAGE_SIZE 64 
+
 class CameraC329
 {
   public:
@@ -104,7 +107,11 @@ class CameraC329
     CameraC329();
     bool sync();
     bool initialize(BaudRate, ColorType, PreviewResolution, JPEGResolution);
+    bool setQuality(QualityLevel);
+    bool takeSnapshot(PictureType);
+    bool getPicture(PictureType, uint32_t&);
     bool reset(ResetType);
+    bool powerOff();
 
   private:
     byte outputCommand[CMD_SIZE];
