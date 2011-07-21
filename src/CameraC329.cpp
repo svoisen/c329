@@ -154,9 +154,9 @@ bool CameraC329::takeSnapshot(PictureType pictureType)
   return false;
 }
 
-bool CameraC329::getPicture(PictureType pictureType, uint32_t &pictureSize)
+bool CameraC329::getPicture(PictureType pictureType, void (*callback)(uint32_t pictureSize, uint16_t packetSize, uint32_t packetStartPosition, byte* packet))
 {
-  pictureSize = 0;
+  uint32_t pictureSize = 0;
 
   setOutputCommand(CMD_GETPICTURE, pictureType, 0, 0, 0);
   sendCommand();
@@ -164,16 +164,26 @@ bool CameraC329::getPicture(PictureType pictureType, uint32_t &pictureSize)
   if (!waitForACK(RESPONSE_DELAY, CMD_GETPICTURE))
     return false;
 
-  if (waitForResponse(RESPONSE_DELAY) && inputCommand[3] == CMD_DATA)
-  {
-    pictureSize = inputCommand[7] << 8;
-    pictureSize |= inputCommand[6] << 8;
-    pictureSize |= inputCommand[5];
+  if (!(waitForResponse(RESPONSE_DELAY) && inputCommand[3] == CMD_DATA))
+    return false;
 
-    return true;
+  pictureSize = inputCommand[7] << 8;
+  pictureSize |= inputCommand[6] << 8;
+  pictureSize |= inputCommand[5];
+
+  uint32_t bytePosition = 0;
+  uint8_t package[DEFAULT_PACKAGE_SIZE];
+
+  while (bytePosition < pictureSize)
+  {
+    if (!waitForResponse(RESPONSE_DELAY, package, DEFAULT_PACKAGE_SIZE))
+      return false;
+
+    callback(pictureSize, min(DEFAULT_PACKAGE_SIZE, pictureSize - bytePosition), bytePosition, package);
+    bytePosition += DEFAULT_PACKAGE_SIZE;
   }
 
-  return false;
+  return true;
 }
 
 /**

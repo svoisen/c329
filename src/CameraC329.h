@@ -109,7 +109,7 @@ class CameraC329
     bool initialize(BaudRate, ColorType, PreviewResolution, JPEGResolution);
     bool setQuality(QualityLevel);
     bool takeSnapshot(PictureType);
-    bool getPicture(PictureType, uint32_t&);
+    bool getPicture(PictureType, void (*)(uint32_t, uint16_t, uint32_t, byte*));
     bool reset(ResetType);
     bool powerOff();
 
